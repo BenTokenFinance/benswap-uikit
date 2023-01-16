@@ -2558,7 +2558,12 @@ var AccordionContent = styled__default['default'].div(templateObject_2$4 || (tem
 });
 var Accordion = function (_a) {
     var label = _a.label, icon = _a.icon, isPushed = _a.isPushed, pushNav = _a.pushNav, _b = _a.initialOpenState, initialOpenState = _b === void 0 ? false : _b, children = _a.children, className = _a.className;
-    var _c = React.useState(initialOpenState), isOpen = _c[0], setIsOpen = _c[1];
+    React.useEffect(function () {
+        if (initialOpenState) {
+            setIsOpen(!!initialOpenState);
+        }
+    }, [initialOpenState]);
+    var _c = React.useState(!!initialOpenState), isOpen = _c[0], setIsOpen = _c[1];
     var handleClick = function () {
         if (isPushed) {
             setIsOpen(function (prevState) { return !prevState; });
@@ -2589,9 +2594,15 @@ var MenuLink = function (_a) {
 
 var Icons$1 = IconModule;
 var Container$1 = styled__default['default'].div(templateObject_1$9 || (templateObject_1$9 = __makeTemplateObject(["\n  display: flex;\n  flex-direction: column;\n  overflow-y: auto;\n  overflow-x: hidden;\n  height: 100%;\n"], ["\n  display: flex;\n  flex-direction: column;\n  overflow-y: auto;\n  overflow-x: hidden;\n  height: 100%;\n"])));
+var isHrefActive = function (href) {
+    var _a;
+    if (href === "/")
+        return location.pathname === href;
+    return !!href && ((_a = location.pathname) === null || _a === void 0 ? void 0 : _a.startsWith(href));
+};
 var PanelBody = function (_a) {
     var isPushed = _a.isPushed, pushNav = _a.pushNav, isMobile = _a.isMobile, links = _a.links;
-    var location = reactRouterDom.useLocation();
+    reactRouterDom.useLocation();
     // Close the menu when a user clicks a link on mobile
     var handleClick = isMobile ? function () { return pushNav(false); } : undefined;
     return (React__default['default'].createElement(Container$1, null, links.map(function (entry) {
@@ -2599,12 +2610,12 @@ var PanelBody = function (_a) {
         var iconElement = React__default['default'].createElement(Icon, { width: "24px", mr: "14px" });
         var calloutClass = entry.calloutClass ? entry.calloutClass : undefined;
         if (entry.items) {
-            return (React__default['default'].createElement(Accordion, { key: entry.label, isPushed: isPushed, pushNav: pushNav, icon: iconElement, label: entry.label, initialOpenState: entry.initialOpenState, className: calloutClass }, isPushed &&
-                entry.items.map(function (item) { return (React__default['default'].createElement(MenuEntry, { key: item.href, secondary: true, isActive: item.isActive || item.href === location.pathname, onClick: handleClick },
+            return (React__default['default'].createElement(Accordion, { key: entry.label, isPushed: isPushed, pushNav: pushNav, icon: iconElement, label: entry.label, initialOpenState: (entry.items.findIndex(function (t) { return t.isActive || isHrefActive(t.href); })) + 1, className: calloutClass }, isPushed &&
+                entry.items.map(function (item) { return (React__default['default'].createElement(MenuEntry, { key: item.href, secondary: true, isActive: item.isActive || isHrefActive(item.href), onClick: handleClick },
                     React__default['default'].createElement(MenuLink, { href: item.href },
                         React__default['default'].createElement("span", null, item.label)))); })));
         }
-        return (React__default['default'].createElement(MenuEntry, { key: entry.label, isActive: entry.isActive || entry.href === location.pathname, className: calloutClass },
+        return (React__default['default'].createElement(MenuEntry, { key: entry.label, isActive: entry.isActive || isHrefActive(entry.href || ""), className: calloutClass },
             React__default['default'].createElement(MenuLink, { href: entry.href, onClick: handleClick },
                 iconElement,
                 React__default['default'].createElement(LinkLabel, { isPushed: isPushed },
